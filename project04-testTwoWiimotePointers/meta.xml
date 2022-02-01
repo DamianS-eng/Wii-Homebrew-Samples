@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<app version="1">
+    <name>project04</name>
+    <coder>damianS-eng</coder>
+    <version>v1.0</version>
+    <release_date>20140316000000</release_date>
+    <short_description>Placeholder text</short_description>
+    <long_description>Have a way to draw a cursor on screen.</long_description>
+</app>
