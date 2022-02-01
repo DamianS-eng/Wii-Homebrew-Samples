@@ -2,3 +2,5 @@
 A collection of working templates for Wii Homebrew. Most can be extracted and loaded as is.
 
 ## Project02-WorkingWiiAppDerivedFromPowerCheck
+## Project04-testTwoWiimotePointers
+## Project05-backgroundAndPointer
