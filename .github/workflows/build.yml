@@ -29,7 +29,6 @@ jobs:
             for d in */; do 
               echo "$d"
               cd "$d"
-              make clean
               make
               cp *.dol ../
               cp *.elf ../
