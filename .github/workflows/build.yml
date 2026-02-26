@@ -15,8 +15,6 @@ jobs:
         run: |
           export DEVKITPRO=/opt/devkitpro
           export DEVKITPPC=${DEVKITPRO}/devkitPPC
-          dkp-pacman -Syu
-          dkp-pacman -Sy devkitPPC libogc
           git clone https://github.com/GRRLIB/GRRLIB.git
           cd GRRLIB
           make
