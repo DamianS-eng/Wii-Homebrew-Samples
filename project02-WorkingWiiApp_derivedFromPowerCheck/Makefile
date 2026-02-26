@@ -102,13 +102,20 @@ $(OUTPUT).dol: $(OUTPUT).elf
 $(OUTPUT).elf: $(OFILES)
 
 #---------------------------------------------------------------------------------
-# Binary data rules (NO .d files generated)
+# Binary data rules (each extension needs its own rule)
 #---------------------------------------------------------------------------------
-%.jpg.o %.png.o %.ttf.o %.bmf.o %.dol.o %.wad.o %.certs.o %.sys.o %.dat.o %.tmd.o %.tik.o %.bin.o: %:
-    @echo $(notdir $<)
-    $(bin2o)
+define BIN2O_RULE
+$1.o: $1
+    @echo $$(notdir $$<)
+    $$(bin2o)
+endef
 
-# Prevent make from trying to auto‑generate .d files for binary resources
+$(foreach ext, jpg png ttf bmf dol wad certs sys dat tmd tik bin, \
+  $(eval $(call BIN2O_RULE,%.$(ext))) )
+
+#---------------------------------------------------------------------------------
+# Prevent .d generation for binary resources
+#---------------------------------------------------------------------------------
 %.jpg.d %.png.d %.ttf.d %.bmf.d %.dol.d %.wad.d %.certs.d %.sys.d %.dat.d %.tmd.d %.tik.d %.bin.d:
     @:
 
