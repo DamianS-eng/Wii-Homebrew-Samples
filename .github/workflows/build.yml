@@ -18,6 +18,8 @@ jobs:
           git clone https://github.com/GRRLIB/GRRLIB.git
           cd GRRLIB
           make -C GRRLIB clean all install
+          cd ../
+          rm -rf GRRLIB/
           # mkdir -p $DEVKITPRO/portlibs/ppc/
           # cp libGRRLIB.a $DEVKITPRO/portlibs/ppc/
           # cp -r GRRLIB $DEVKITPRO/portlibs/ppc/include/
