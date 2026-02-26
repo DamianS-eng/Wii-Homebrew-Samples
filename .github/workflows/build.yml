@@ -16,14 +16,14 @@ jobs:
             export DEVKITPRO=/opt/devkitpro
             export DEVKITPPC=${DEVKITPRO}/devkitPPC
             ls
+            rootpwd=$(pwd)
             for d in */; do 
-              pushd "$d" >/dev/null
-              pwd
+              cd "$d"
               make -f Makefile.wii
               cp *.dol ../
               cp *.elf ../
               cp *.bin ../
-              popd >/dev/null
+              cd "$rootpwd"
             done
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
