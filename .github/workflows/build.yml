@@ -15,11 +15,12 @@ jobs:
         run: |
             export DEVKITPRO=/opt/devkitpro
             export DEVKITPPC=${DEVKITPRO}/devkitPPC
-            ls
             rootpwd=$(pwd)
             for d in */; do 
+              echo "$d"
               cd "$d"
-              make -f Makefile.wii
+              make clean
+              make
               cp *.dol ../
               cp *.elf ../
               cp *.bin ../
