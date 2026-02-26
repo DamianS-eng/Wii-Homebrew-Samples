@@ -15,16 +15,15 @@ jobs:
         run: |
             export DEVKITPRO=/opt/devkitpro
             export DEVKITPPC=${DEVKITPRO}/devkitPPC
-            tree
+            ls
             for d in */; do 
-              [ -d "$d" ]
-              pushd "$d"
+              pushd "$d" >/dev/null
               pwd
               make -f Makefile.wii
               cp *.dol ../
               cp *.elf ../
               cp *.bin ../
-              popd
+              popd >/dev/null
             done
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
