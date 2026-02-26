@@ -71,9 +71,9 @@ BINFILES    := $(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.*)))
 # use CXX for linking C++ projects, CC for standard C
 #---------------------------------------------------------------------------------
 ifeq ($(strip $(CPPFILES)),)
-    export LD := $(CC)
+export LD := $(CC)
 else
-    export LD := $(CXX)
+export LD := $(CXX)
 endif
 
 export OFILES := $(addsuffix .o,$(BINFILES)) \
