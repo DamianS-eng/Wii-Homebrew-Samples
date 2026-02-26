@@ -1,0 +1,36 @@
+name: Build with DevkitPro
+on:
+  push:
+  workflow_dispatch:
+jobs:
+  wii:
+    name: Build Wii
+    runs-on: ubuntu-latest
+    container:
+      image: devkitpro/devkitppc:latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Build all wii projects
+        run: |
+            export DEVKITPRO=/opt/devkitpro
+            export DEVKITPPC=${DEVKITPRO}/devkitPPC
+            pwd
+            for d in */; do 
+              [ -d "$d" ]
+              pushd "$d"
+              pwd
+              make -f Makefile.wii
+              cp *.dol ../
+              cp *.elf ../
+              cp *.bin ../
+              popd
+            done
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+            name: wii-build
+            path: |
+                ./*.dol
+                ./*.elf
+                ./*.bin
