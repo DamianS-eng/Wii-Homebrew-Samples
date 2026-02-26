@@ -1,227 +1,118 @@
 #---------------------------------------------------------------------------------
-# Clear the implicit built in rules
+# Clear implicit rules
 #---------------------------------------------------------------------------------
 .SUFFIXES:
-#---------------------------------------------------------------------------------
+
 ifeq ($(strip $(DEVKITPPC)),)
-$(error "Please set DEVKITPPC in your environment. export DEVKITPPC=<path to>devkitPPC")
+$(error "Please set DEVKITPPC in your environment. export DEVKITPPC=<path to>/devkitPPC")
 endif
 
 include $(DEVKITPPC)/wii_rules
 
 #---------------------------------------------------------------------------------
-# TARGET is the name of the output
-# BUILD is the directory where object files & intermediate files will be placed
-# SOURCES is a list of directories containing source code
-# INCLUDES is a list of directories containing extra header files
+# Project settings
 #---------------------------------------------------------------------------------
-TARGET		:=	boot
-BUILD		:=	build
-SOURCES		:=	source
-DATA		:=	data  
-INCLUDES	:=
+TARGET      := boot
+BUILD       := build
+SOURCES     := source
+DATA        := data
+INCLUDES    :=
 
 #---------------------------------------------------------------------------------
-# options for code generation
+# Compiler flags
 #---------------------------------------------------------------------------------
-
-CFLAGS	= -g -O2 -Wall $(MACHDEP) $(INCLUDE)
-CXXFLAGS	=	$(CFLAGS)
-
-LDFLAGS	=	-g $(MACHDEP) -Wl,-Map,$(notdir $@).map
+CFLAGS      := -g -O2 -Wall $(MACHDEP) $(INCLUDE)
+CXXFLAGS    := $(CFLAGS)
+LDFLAGS     := -g $(MACHDEP) -Wl,-Map,$(notdir $@).map
 
 #---------------------------------------------------------------------------------
-# any extra libraries we wish to link with the project
+# Libraries
 #---------------------------------------------------------------------------------
-LIBS	:= -lgrrlib
-LIBS	+= -lfreetype -lbz2 -lfat -ljpeg -lpngu -lpng -lz
-LIBS	+= -lwiiuse
-LIBS	+= -lbte -logc -lm
+LIBS        := -lgrrlib -lfreetype -lbz2 -lfat -ljpeg -lpngu -lpng -lz \
+               -lwiiuse -lbte -logc -lm
+
+LIBDIRS     := $(PORTLIBS)
 
 #---------------------------------------------------------------------------------
-# list of directories containing libraries, this must be the top level containing
-# include and lib
-#---------------------------------------------------------------------------------
-LIBDIRS		:= $(PORTLIBS)
-
-#---------------------------------------------------------------------------------
-# no real need to edit anything past this point unless you need to add additional
-# rules for different file extensions
+# Build system
 #---------------------------------------------------------------------------------
 ifneq ($(BUILD),$(notdir $(CURDIR)))
-#---------------------------------------------------------------------------------
 
-export OUTPUT	:=	$(CURDIR)/$(TARGET)
+export OUTPUT := $(CURDIR)/$(TARGET)
 
-export VPATH	:=	$(foreach dir,$(SOURCES),$(CURDIR)/$(dir)) \
-					$(foreach dir,$(DATA),$(CURDIR)/$(dir))
+export VPATH := $(foreach dir,$(SOURCES),$(CURDIR)/$(dir)) \
+                $(foreach dir,$(DATA),$(CURDIR)/$(dir))
 
-export DEPSDIR	:=	$(CURDIR)/$(BUILD)
+export DEPSDIR := $(CURDIR)/$(BUILD)
 
-#---------------------------------------------------------------------------------
-# automatically build a list of object files for our project
-#---------------------------------------------------------------------------------
-CFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.c)))
-CPPFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.cpp)))
-sFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.s)))
-SFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.S)))
-BINFILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.*)))
+# Source files
+CFILES      := $(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.c)))
+CPPFILES    := $(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.cpp)))
+sFILES      := $(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.s)))
+SFILES      := $(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.S)))
+BINFILES    := $(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.*)))
 
-#---------------------------------------------------------------------------------
-# use CXX for linking C++ projects, CC for standard C
-#---------------------------------------------------------------------------------
+# Linker
 ifeq ($(strip $(CPPFILES)),)
-	export LD	:=	$(CC)
+export LD := $(CC)
 else
-	export LD	:=	$(CXX)
+export LD := $(CXX)
 endif
 
-export OFILES	:=	$(addsuffix .o,$(BINFILES)) \
-					$(CPPFILES:.cpp=.o) $(CFILES:.c=.o) \
-					$(sFILES:.s=.o) $(SFILES:.S=.o)
+# Object list
+export OFILES := $(addsuffix .o,$(BINFILES)) \
+                 $(CPPFILES:.cpp=.o) $(CFILES:.c=.o) \
+                 $(sFILES:.s=.o) $(SFILES:.S=.o)
 
-#---------------------------------------------------------------------------------
-# build a list of include paths
-#---------------------------------------------------------------------------------
-export INCLUDE	:=	$(foreach dir,$(INCLUDES), -iquote $(CURDIR)/$(dir)) \
-					$(foreach dir,$(LIBDIRS),-I$(dir)/include) \
-					-I$(CURDIR)/$(BUILD) \
-					-I$(LIBOGC_INC)
+# Include paths
+export INCLUDE := $(foreach dir,$(INCLUDES), -iquote $(CURDIR)/$(dir)) \
+                  $(foreach dir,$(LIBDIRS),-I$(dir)/include) \
+                  -I$(CURDIR)/$(BUILD) \
+                  -I$(LIBOGC_INC)
 
-#---------------------------------------------------------------------------------
-# build a list of library paths
-#---------------------------------------------------------------------------------
-export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib) \
-					-L$(LIBOGC_LIB)
+# Library paths
+export LIBPATHS := $(foreach dir,$(LIBDIRS),-L$(dir)/lib) \
+                   -L$(LIBOGC_LIB)
 
-export OUTPUT	:=	$(CURDIR)/$(TARGET)
-.PHONY: $(BUILD) clean
+.PHONY: $(BUILD) clean run
 
-#---------------------------------------------------------------------------------
 $(BUILD):
-	@[ -d $@ ] || mkdir -p $@
-	@make --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
+    @[ -d $@ ] || mkdir -p $@
+    @$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
 
-#---------------------------------------------------------------------------------
 clean:
-	@echo clean ...
-	@rm -fr $(BUILD) $(OUTPUT).elf $(OUTPUT).dol
+    @echo clean ...
+    @rm -fr $(BUILD) $(OUTPUT).elf $(OUTPUT).dol
 
-#---------------------------------------------------------------------------------
 run:
-	make
-	wiiload $(TARGET).dol
+    $(MAKE)
+    wiiload $(TARGET).dol
 
-
-#---------------------------------------------------------------------------------
 else
 
-DEPENDS	:=	$(OFILES:.o=.d)
+#---------------------------------------------------------------------------------
+# Inside build directory
+#---------------------------------------------------------------------------------
 
-#---------------------------------------------------------------------------------
-# main targets
-#---------------------------------------------------------------------------------
+# Dependency files (only for C/C++)
+DEPENDS := $(filter %.d,$(OFILES:.o=.d))
+
+# Main targets
 $(OUTPUT).dol: $(OUTPUT).elf
 $(OUTPUT).elf: $(OFILES)
 
 #---------------------------------------------------------------------------------
-# This rule links in binary data with the .jpg extension
+# Binary data rules (NO .d files generated)
 #---------------------------------------------------------------------------------
-%.jpg.o	:	%.jpg
-#---------------------------------------------------------------------------------
-	@echo $(notdir $<)
-	$(bin2o)
+%.jpg.o %.png.o %.ttf.o %.bmf.o %.dol.o %.wad.o %.certs.o %.sys.o %.dat.o %.tmd.o %.tik.o %.bin.o: %:
+    @echo $(notdir $<)
+    $(bin2o)
 
-#---------------------------------------------------------------------------------
-# This rule links in binary data with the .png extension
-#---------------------------------------------------------------------------------
-%.png.o	:	%.png
-#---------------------------------------------------------------------------------
-	@echo $(notdir $<)
-	$(bin2o)
+# Prevent make from trying to auto‑generate .d files for binary resources
+%.jpg.d %.png.d %.ttf.d %.bmf.d %.dol.d %.wad.d %.certs.d %.sys.d %.dat.d %.tmd.d %.tik.d %.bin.d:
+    @:
 
-#---------------------------------------------------------------------------------
-# This rule links in binary data with the .ttf extension
-#---------------------------------------------------------------------------------
-%.ttf.o	:	%.ttf
-#---------------------------------------------------------------------------------
-	@echo $(notdir $<)
-	$(bin2o)
-
-#---------------------------------------------------------------------------------
-# This rule links in binary data with the .bmf extension
-#---------------------------------------------------------------------------------
-%.bmf.o	:	%.bmf
-#---------------------------------------------------------------------------------
-	@echo $(notdir $<)
-	$(bin2o)
-
-#---------------------------------------------------------------------------------
-# This rule links in binary data with the .dol extension
-#---------------------------------------------------------------------------------
-%.dol.o	:	%.dol
-#---------------------------------------------------------------------------------
-	@echo $(notdir $<)
-	$(bin2o)
-
-#---------------------------------------------------------------------------------
-# This rule links in binary data with the .wad extension
-#---------------------------------------------------------------------------------
-%.wad.o	:	%.wad
-#---------------------------------------------------------------------------------
-	@echo $(notdir $<)
-	$(bin2o)
-
-#---------------------------------------------------------------------------------
-# This rule links in binary data with the .certs extension
-#---------------------------------------------------------------------------------
-%.certs.o : %.certs
-#---------------------------------------------------------------------------------
-	@echo $(notdir $<)
-	$(bin2o)
-
-#---------------------------------------------------------------------------------
-# This rule links in binary data with the .sys extension
-#---------------------------------------------------------------------------------
-%.sys.o : %.sys
-#---------------------------------------------------------------------------------
-	@echo $(notdir $<)
-	$(bin2o)
-
-#---------------------------------------------------------------------------------
-# This rule links in binary data with the .dat extension
-#---------------------------------------------------------------------------------
-%.dat.o : %.dat
-#---------------------------------------------------------------------------------
-	@echo $(notdir $<)
-	$(bin2o)
-
-#---------------------------------------------------------------------------------
-# This rule links in binary data with the .tmd extension
-#---------------------------------------------------------------------------------
-%.tmd.o : %.tmd
-#---------------------------------------------------------------------------------
-	@echo $(notdir $<)
-	$(bin2o)
-
-#---------------------------------------------------------------------------------
-# This rule links in binary data with the .tik extension
-#---------------------------------------------------------------------------------
-%.tik.o : %.tik
-#---------------------------------------------------------------------------------
-	@echo $(notdir $<)
-	$(bin2o)
-
-#---------------------------------------------------------------------------------
-# This rule links in binary data with the .bin extension
-#---------------------------------------------------------------------------------
-%.bin.o : %.bin
-#---------------------------------------------------------------------------------
-	@echo $(notdir $<)
-	$(bin2o)
-
+# Include dependency files
 -include $(DEPENDS)
 
-#---------------------------------------------------------------------------------
 endif
-#---------------------------------------------------------------------------------
