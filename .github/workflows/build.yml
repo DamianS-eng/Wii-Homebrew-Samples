@@ -17,10 +17,10 @@ jobs:
           export DEVKITPPC=${DEVKITPRO}/devkitPPC
           git clone https://github.com/GRRLIB/GRRLIB.git
           cd GRRLIB
-          make
-          mkdir -p $DEVKITPRO/portlibs/ppc/
-          cp libGRRLIB.a $DEVKITPRO/portlibs/ppc/
-          cp -r GRRLIB $DEVKITPRO/portlibs/ppc/include/
+          make -C GRRLIB clean all install
+          # mkdir -p $DEVKITPRO/portlibs/ppc/
+          # cp libGRRLIB.a $DEVKITPRO/portlibs/ppc/
+          # cp -r GRRLIB $DEVKITPRO/portlibs/ppc/include/
       - name: Build all wii projects
         run: |
             export DEVKITPRO=/opt/devkitpro
