@@ -15,7 +15,7 @@ jobs:
         run: |
             export DEVKITPRO=/opt/devkitpro
             export DEVKITPPC=${DEVKITPRO}/devkitPPC
-            pwd
+            tree
             for d in */; do 
               [ -d "$d" ]
               pushd "$d"
