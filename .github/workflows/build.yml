@@ -11,6 +11,18 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+      - name: Setup grrlib
+        run: |
+          export DEVKITPRO=/opt/devkitpro
+          export DEVKITPPC=${DEVKITPRO}/devkitPPC
+          dkp-pacman -Syu
+          dkp-pacman -S devkitPPC libogc
+          git clone https://github.com/GRRLIB/GRRLIB.git
+          cd GRRLIB
+          make
+          mkdir -p $DEVKITPRO/portlibs/ppc/
+          cp libGRRLIB.a $DEVKITPRO/portlibs/ppc/
+          cp -r GRRLIB $DEVKITPRO/portlibs/ppc/include/
       - name: Build all wii projects
         run: |
             export DEVKITPRO=/opt/devkitpro
