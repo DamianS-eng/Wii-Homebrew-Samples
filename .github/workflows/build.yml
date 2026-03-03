@@ -30,7 +30,6 @@ jobs:
         run: |
             export DEVKITPRO=/opt/devkitpro
             export DEVKITPPC=${DEVKITPRO}/devkitPPC
-            failed=()
             for d in */; do
               {
                 echo "Building $d"
@@ -41,7 +40,6 @@ jobs:
                   cp *.bin ../ 2>/dev/null 
                 else
                   echo "✘ FAILED: $d did not build" 
-                  failed+=("$d")
                 fi
               } &
             done
