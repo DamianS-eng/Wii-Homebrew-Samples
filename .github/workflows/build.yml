@@ -27,16 +27,23 @@ jobs:
         run: |
             export DEVKITPRO=/opt/devkitpro
             export DEVKITPPC=${DEVKITPRO}/devkitPPC
-            rootpwd=$(pwd)
-            for d in */; do 
-              echo "$d"
-              cd "$d"
-              make
-              cp *.dol ../
-              cp *.elf ../
-              cp *.bin ../
-              cd "$rootpwd"
+            failed=()
+            for d in */; do
+              (
+                echo "Building $d"
+                cd "$d" || { echo "Failed to cd into $d"; exit 1; }
+                 if make; then 
+                  cp *.dol ../ 2>/dev/null 
+                  cp *.elf ../ 2>/dev/null 
+                  cp *.bin ../ 2>/dev/null 
+                else
+                  echo "✘ FAILED: $d did not build" 
+                  failed+=("$d")
+                fi
+              ) &
             done
+            wait
+            printf "Failed builds:\n%s\n" "${failed[@]}"
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
