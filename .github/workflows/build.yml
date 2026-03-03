@@ -32,7 +32,7 @@ jobs:
               (
                 echo "Building $d"
                 cd "$d" || { echo "Failed to cd into $d"; exit 1; }
-                 if make; then 
+                if make; then 
                   cp *.dol ../ 2>/dev/null 
                   cp *.elf ../ 2>/dev/null 
                   cp *.bin ../ 2>/dev/null 
