@@ -8,9 +8,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: devkitpro/devkitppc:latest
-    defaults:
-      run:
-        shell: bash
+#    defaults:
+#      run:
+#        shell: bash
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -46,7 +46,6 @@ jobs:
               } &
             done
             wait
-            printf "Failed builds:\n%s\n" "${failed[@]}"
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
