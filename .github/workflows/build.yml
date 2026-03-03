@@ -8,6 +8,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: devkitpro/devkitppc:latest
+    defaults:
+      run:
+        shell: bash
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -29,7 +32,7 @@ jobs:
             export DEVKITPPC=${DEVKITPRO}/devkitPPC
             failed=()
             for d in */; do
-              (
+              {
                 echo "Building $d"
                 cd "$d" || { echo "Failed to cd into $d"; exit 1; }
                 if make; then 
@@ -40,7 +43,7 @@ jobs:
                   echo "✘ FAILED: $d did not build" 
                   failed+=("$d")
                 fi
-              ) &
+              } &
             done
             wait
             printf "Failed builds:\n%s\n" "${failed[@]}"
